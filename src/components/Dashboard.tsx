@@ -227,8 +227,8 @@ export default function Dashboard() {
         {/* Header row */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img src="/tianhe.png" alt="Tianhe" className="h-10" />
-            <img src="/tianji.png" alt="Tianji" className="h-10" />
+            <img src="/tianhe.png" alt="Tianhe" className="h-16" />
+            <img src="/tianji.png" alt="Tianji" className="h-16" />
             <div className="flex flex-col gap-1.5">
               <h1 className="text-white text-3xl font-bold" style={{ color: '#ff8400' }}>贵金属行情看板</h1>
               <p className="text-sm" style={{ color: '#b8b9b6' }}>实时行情数据</p>
