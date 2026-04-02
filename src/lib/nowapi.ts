@@ -1,7 +1,3 @@
-const BASE = process.env.NOWAPI_BASE_URL || 'https://sapi.k780.com/'
-const APPKEY = process.env.NOWAPI_APPKEY!
-const SIGN = process.env.NOWAPI_SIGN!
-
 export interface SpotPrice {
   id: string
   name: string
@@ -18,6 +14,9 @@ export interface SpotPrice {
 }
 
 async function fetchGold(goldid: string) {
+  const BASE = process.env.NOWAPI_BASE_URL || 'https://sapi.k780.com/'
+  const APPKEY = process.env.NOWAPI_APPKEY!
+  const SIGN = process.env.NOWAPI_SIGN!
   const url = `${BASE}?app=finance.gold_price&goldid=${goldid}&version=3&appkey=${APPKEY}&sign=${SIGN}&format=json`
   const res = await fetch(url, { next: { revalidate: 60 } })
   const json = await res.json()
@@ -25,6 +24,9 @@ async function fetchGold(goldid: string) {
 }
 
 async function fetchFutures(ftsIdS: string) {
+  const BASE = process.env.NOWAPI_BASE_URL || 'https://sapi.k780.com/'
+  const APPKEY = process.env.NOWAPI_APPKEY!
+  const SIGN = process.env.NOWAPI_SIGN!
   const url = `${BASE}?app=quote.futures&ftsIdS=${ftsIdS}&appkey=${APPKEY}&sign=${SIGN}&format=json`
   const res = await fetch(url, { next: { revalidate: 60 } })
   const json = await res.json()

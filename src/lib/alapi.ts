@@ -1,5 +1,3 @@
-const ALAPI_TOKEN = process.env.ALAPI_TOKEN!
-
 export interface BrandPrice {
   name: string
   price: number
@@ -8,6 +6,7 @@ export interface BrandPrice {
 }
 
 export async function getBrandPrices(): Promise<BrandPrice[]> {
+  const ALAPI_TOKEN = process.env.ALAPI_TOKEN!
   const url = `https://v3.alapi.cn/api/gold/brand?token=${ALAPI_TOKEN}`
   const res = await fetch(url, { next: { revalidate: 300 } })
   const json = await res.json()
