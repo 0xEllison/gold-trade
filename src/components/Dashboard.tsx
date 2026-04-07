@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
 interface SpotPrice {
   id: string
@@ -24,6 +24,28 @@ interface BrandPrice {
   updatetime: string
 }
 
+// 字体随视口宽度缩放
+const fs = {
+  xs:   'clamp(10px, 0.7vw, 16px)',
+  sm:   'clamp(11px, 0.85vw, 18px)',
+  base: 'clamp(12px, 0.95vw, 20px)',
+  lg:   'clamp(13px, 1.1vw, 24px)',
+  xl:   'clamp(15px, 1.3vw, 28px)',
+  '2xl':'clamp(17px, 1.5vw, 32px)',
+  '3xl':'clamp(22px, 2vw, 44px)',
+}
+
+// 间距随视口缩放
+const sp = {
+  xs:  'clamp(4px,  0.4vw, 10px)',
+  sm:  'clamp(6px,  0.6vw, 14px)',
+  md:  'clamp(8px,  0.8vw, 18px)',
+  lg:  'clamp(10px, 1vw,   22px)',
+  xl:  'clamp(12px, 1.2vw, 28px)',
+  px:  'clamp(16px, 2vw,   48px)',
+  py:  'clamp(10px, 1.2vh, 28px)',
+}
+
 function formatPrice(price: number, currency: 'USD' | 'CNY') {
   if (isNaN(price)) return '—'
   const sym = currency === 'USD' ? '$' : '¥'
@@ -41,29 +63,32 @@ function formatChange(last: number, yesterday: number, currency: 'USD' | 'CNY') 
 
 function SpotCard({ item }: { item: SpotPrice }) {
   const diff = item.lastPrice - item.yesdayPrice
-  const isUp = diff >= 0
-  const changeColor = isUp ? '#22c55e' : '#ef4444'
+  const changeColor = diff >= 0 ? '#22c55e' : '#ef4444'
 
   return (
-    <div
-      className="flex-1 rounded-xl p-4 flex flex-col gap-3 overflow-hidden relative"
-      style={{ background: '#1a1a1a', border: '1px solid #2e2e2e', minWidth: 0 }}
-    >
-      <div className="flex items-center justify-between">
-        <span className="text-white text-sm font-semibold">{item.name}</span>
-        <span className="text-xs font-normal" style={{ color: '#b8b9b6' }}>{item.ticker}</span>
+    <div style={{
+      flex: 1, minWidth: 0,
+      background: '#1a1a1a', border: '1px solid #2e2e2e',
+      borderRadius: 'clamp(8px, 0.8vw, 16px)',
+      padding: sp.xl,
+      display: 'flex', flexDirection: 'column',
+      gap: sp.sm, overflow: 'hidden',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#fff', fontSize: fs.base, fontWeight: 600 }}>{item.name}</span>
+        <span style={{ color: '#b8b9b6', fontSize: fs.xs }}>{item.ticker}</span>
       </div>
-      <div className="text-white text-3xl font-bold leading-none">
+      <div style={{ color: '#fff', fontSize: fs['3xl'], fontWeight: 700, lineHeight: 1 }}>
         {formatPrice(item.lastPrice, item.currency)}
       </div>
-      <div className="text-sm" style={{ color: changeColor }}>
+      <div style={{ color: changeColor, fontSize: fs.sm }}>
         {formatChange(item.lastPrice, item.yesdayPrice, item.currency)}
       </div>
-      <div className="flex gap-4">
-        <span className="text-xs" style={{ color: '#b8b9b6' }}>
+      <div style={{ display: 'flex', gap: sp.lg }}>
+        <span style={{ color: '#b8b9b6', fontSize: fs.xs }}>
           今日高: {formatPrice(item.highPrice, item.currency)}
         </span>
-        <span className="text-xs" style={{ color: '#b8b9b6' }}>
+        <span style={{ color: '#b8b9b6', fontSize: fs.xs }}>
           今日低: {formatPrice(item.lowPrice, item.currency)}
         </span>
       </div>
@@ -71,115 +96,119 @@ function SpotCard({ item }: { item: SpotPrice }) {
   )
 }
 
-function BrandTable({ brands }: { brands: BrandPrice[] }) {
-  const updatedAt = brands[0]?.updatetime ?? ''
+function TableShell({ dot, title, date, cols, children }: {
+  dot: string; title: string; date: string
+  cols: [string, string, string]
+  children: React.ReactNode
+}) {
   return (
-    <div className="flex-1 rounded-xl flex flex-col overflow-hidden" style={{ background: '#1a1a1a', border: '1px solid #2e2e2e', minWidth: 0 }}>
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: '1px solid #2e2e2e' }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#ff8400' }} />
-          <span className="text-white text-sm font-semibold">品牌报价</span>
+    <div style={{
+      flex: 1, minWidth: 0,
+      background: '#1a1a1a', border: '1px solid #2e2e2e',
+      borderRadius: 'clamp(8px, 0.8vw, 16px)',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    }}>
+      {/* 表头 */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: `${sp.lg} ${sp.px}`,
+        borderBottom: '1px solid #2e2e2e', flexShrink: 0,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: sp.sm }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: dot, display: 'inline-block', flexShrink: 0 }} />
+          <span style={{ color: '#fff', fontSize: fs.base, fontWeight: 600 }}>{title}</span>
         </div>
-        <span className="text-xs" style={{ color: '#666', fontFamily: 'JetBrains Mono, monospace' }}>{updatedAt.slice(0, 10)}</span>
+        <span style={{ color: '#666', fontSize: fs.xs, fontFamily: 'JetBrains Mono, monospace' }}>{date}</span>
       </div>
-      <div className="flex items-center px-5 py-2.5" style={{ background: '#222' }}>
-        <span className="flex-1 text-xs font-medium" style={{ color: '#999' }}>品牌</span>
-        <span className="flex-1 text-xs font-medium text-right" style={{ color: '#999' }}>零售价(元/g)</span>
-        <span className="flex-1 text-xs font-medium text-right" style={{ color: '#999' }}>回购价(元/g)</span>
+      {/* 列标题 */}
+      <div style={{
+        display: 'flex', alignItems: 'center',
+        padding: `${sp.sm} ${sp.px}`,
+        background: '#222', flexShrink: 0,
+      }}>
+        <span style={{ flex: 1, color: '#999', fontSize: fs.xs, fontWeight: 500 }}>{cols[0]}</span>
+        <span style={{ flex: 1, color: '#999', fontSize: fs.xs, fontWeight: 500, textAlign: 'right' }}>{cols[1]}</span>
+        <span style={{ flex: 1, color: '#999', fontSize: fs.xs, fontWeight: 500, textAlign: 'right' }}>{cols[2]}</span>
       </div>
-      {brands.map((b, i) => (
-        <div
-          key={`brand-${i}`}
-          className="flex items-center px-5 py-3"
-          style={i < brands.length - 1 ? { borderBottom: '1px solid #2e2e2e' } : undefined}
-        >
-          <span className="flex-1 text-sm text-white" style={{ fontFamily: 'Geist, sans-serif' }}>{b.name}</span>
-          <span className="flex-1 text-sm text-right text-white" style={{ fontFamily: 'JetBrains Mono, monospace' }}>{b.price.toFixed(2)}</span>
-          <span className="flex-1 text-sm text-right" style={{ color: '#ff8400', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>
-        </div>
-      ))}
+      {/* 数据行区域 flex-1 均分高度 */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {children}
+      </div>
     </div>
   )
 }
 
-interface BankRow { name: string; buy: number; sell: number }
-
-const BANK_MOCK: BankRow[] = [
-  { name: '工商银行', buy: 0, sell: 0 },
-  { name: '建设银行', buy: 0, sell: 0 },
-  { name: '中国银行', buy: 0, sell: 0 },
-  { name: '农业银行', buy: 0, sell: 0 },
-  { name: '交通银行', buy: 0, sell: 0 },
-]
-
-function BankTable({ domestic }: { domestic: SpotPrice | undefined }) {
-  const today = new Date().toISOString().slice(0, 10)
+function TableRow({ cells, last }: { cells: [React.ReactNode, React.ReactNode, React.ReactNode]; last: boolean }) {
   return (
-    <div className="flex-1 rounded-xl flex flex-col overflow-hidden" style={{ background: '#1a1a1a', border: '1px solid #2e2e2e', minWidth: 0 }}>
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: '1px solid #2e2e2e' }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#60a5fa' }} />
-          <span className="text-white text-sm font-semibold">银行报价</span>
-        </div>
-        <span className="text-xs" style={{ color: '#666', fontFamily: 'JetBrains Mono, monospace' }}>{today}</span>
-      </div>
-      <div className="flex items-center px-5 py-2.5" style={{ background: '#222' }}>
-        <span className="flex-1 text-xs font-medium" style={{ color: '#999' }}>银行</span>
-        <span className="flex-1 text-xs font-medium text-right" style={{ color: '#999' }}>买入价(元/g)</span>
-        <span className="flex-1 text-xs font-medium text-right" style={{ color: '#999' }}>卖出价(元/g)</span>
-      </div>
-      {BANK_MOCK.map((b, i) => (
-        <div
-          key={`bank-${i}`}
-          className="flex items-center px-5 py-3"
-          style={i < BANK_MOCK.length - 1 ? { borderBottom: '1px solid #2e2e2e' } : undefined}
-        >
-          <span className="flex-1 text-sm text-white" style={{ fontFamily: 'Geist, sans-serif' }}>{b.name}</span>
-          <span className="flex-1 text-sm text-right" style={{ color: '#60a5fa', fontFamily: 'JetBrains Mono, monospace' }}>—</span>
-          <span className="flex-1 text-sm text-right text-white" style={{ fontFamily: 'JetBrains Mono, monospace' }}>—</span>
-        </div>
-      ))}
+    <div style={{
+      flex: 1,
+      display: 'flex', alignItems: 'center',
+      padding: `0 clamp(12px, 1.2vw, 28px)`,
+      borderBottom: last ? 'none' : '1px solid #2e2e2e',
+      minHeight: 0,
+    }}>
+      {cells[0]}
+      {cells[1]}
+      {cells[2]}
     </div>
+  )
+}
+
+function BrandTable({ brands }: { brands: BrandPrice[] }) {
+  return (
+    <TableShell
+      dot="#ff8400" title="品牌报价"
+      date={brands[0]?.updatetime?.slice(0, 10) ?? ''}
+      cols={['品牌', '零售价(元/g)', '回购价(元/g)']}
+    >
+      {brands.map((b, i) => (
+        <TableRow key={i} last={i === brands.length - 1} cells={[
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm }}>{b.name}</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price.toFixed(2)}</span>,
+          <span style={{ flex: 1, color: '#ff8400', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>,
+        ]} />
+      ))}
+    </TableShell>
+  )
+}
+
+const BANKS = ['工商银行', '建设银行', '中国银行', '农业银行', '交通银行']
+
+function BankTable() {
+  const [today, setToday] = useState('')
+  useEffect(() => setToday(new Date().toISOString().slice(0, 10)), [])
+  return (
+    <TableShell
+      dot="#60a5fa" title="银行报价"
+      date={today}
+      cols={['银行', '买入价(元/g)', '卖出价(元/g)']}
+    >
+      {BANKS.map((name, i) => (
+        <TableRow key={i} last={i === BANKS.length - 1} cells={[
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm }}>{name}</span>,
+          <span style={{ flex: 1, color: '#60a5fa', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
+        ]} />
+      ))}
+    </TableShell>
   )
 }
 
 function RecycleTable({ brands }: { brands: BrandPrice[] }) {
-  const updatedAt = brands[0]?.updatetime ?? ''
   return (
-    <div className="flex-1 rounded-xl flex flex-col overflow-hidden" style={{ background: '#1a1a1a', border: '1px solid #2e2e2e', minWidth: 0 }}>
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderBottom: '1px solid #2e2e2e' }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ background: '#a78bfa' }} />
-          <span className="text-white text-sm font-semibold">回收报价</span>
-        </div>
-        <span className="text-xs" style={{ color: '#666', fontFamily: 'JetBrains Mono, monospace' }}>{updatedAt.slice(0, 10)}</span>
-      </div>
-      <div className="flex items-center px-5 py-2.5" style={{ background: '#222' }}>
-        <span className="flex-1 text-xs font-medium" style={{ color: '#999' }}>商家</span>
-        <span className="flex-1 text-xs font-medium text-right" style={{ color: '#999' }}>回收价(元/g)</span>
-        <span className="flex-1 text-xs font-medium text-right" style={{ color: '#999' }}>品质</span>
-      </div>
+    <TableShell
+      dot="#a78bfa" title="回收报价"
+      date={brands[0]?.updatetime?.slice(0, 10) ?? ''}
+      cols={['商家', '回收价(元/g)', '品质']}
+    >
       {brands.map((b, i) => (
-        <div
-          key={`recycle-${i}`}
-          className="flex items-center px-5 py-3"
-          style={i < brands.length - 1 ? { borderBottom: '1px solid #2e2e2e' } : undefined}
-        >
-          <span className="flex-1 text-sm text-white" style={{ fontFamily: 'Geist, sans-serif' }}>{b.name}</span>
-          <span className="flex-1 text-sm text-right" style={{ color: '#a78bfa', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>
-          <span className="flex-1 text-sm text-right" style={{ color: '#666', fontFamily: 'Geist, sans-serif' }}>足金99.9</span>
-        </div>
+        <TableRow key={i} last={i === brands.length - 1} cells={[
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm }}>{b.name}</span>,
+          <span style={{ flex: 1, color: '#a78bfa', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>,
+          <span style={{ flex: 1, color: '#666', fontSize: fs.xs, textAlign: 'right' }}>足金99.9</span>,
+        ]} />
       ))}
-    </div>
+    </TableShell>
   )
 }
 
@@ -188,19 +217,14 @@ export default function Dashboard() {
   const [brands, setBrands] = useState<BrandPrice[]>([])
   const [updatedAt, setUpdatedAt] = useState<string>('')
   const [loading, setLoading] = useState(true)
-  const [interval, setRefreshInterval] = useState(60000) // 默认1分钟
+  const [refreshInterval, setRefreshInterval] = useState(60000)
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
   const fetchAll = async () => {
     try {
-      const [mRes, bRes] = await Promise.all([
-        fetch('/api/market'),
-        fetch('/api/brands'),
-      ])
+      const [mRes, bRes] = await Promise.all([fetch('/api/market'), fetch('/api/brands')])
       const mJson = await mRes.json()
       const bJson = await bRes.json()
       if (mJson.data) setSpots(mJson.data)
@@ -213,82 +237,95 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchAll().finally(() => setLoading(false))
-    const id = setInterval(fetchAll, interval)
+    const id = setInterval(fetchAll, refreshInterval)
     return () => clearInterval(id)
-  }, [interval])
+  }, [refreshInterval])
 
-  const domestic = spots.find(s => s.id === 'au-domestic')
   const displayBrands = brands.slice(0, 5)
 
   return (
-    <main className="min-h-screen flex flex-col" style={{ background: '#111111' }}>
-      {/* Header + Cards */}
-      <section className="flex flex-col gap-6 px-8 py-6" style={{ background: '#111111' }}>
+    <main style={{
+      height: '100vh', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+      background: '#111111',
+    }}>
+      {/* ── 上半区：Header + Cards ── */}
+      <section style={{
+        flexShrink: 0,
+        display: 'flex', flexDirection: 'column',
+        gap: sp.xl,
+        padding: `${sp.py} ${sp.px}`,
+      }}>
         {/* Header row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/tianhe.png" alt="Tianhe" className="h-16" />
-            <img src="/tianji.png" alt="Tianji" className="h-16" />
-            <div className="flex flex-col gap-1.5">
-              <h1 className="text-white text-3xl font-bold" style={{ color: '#ff8400' }}>贵金属行情看板</h1>
-              <p className="text-sm" style={{ color: '#b8b9b6' }}>实时行情数据</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: sp.lg }}>
+            <img src="/tianhe.png" alt="Tianhe" style={{ height: 'clamp(40px, 4vw, 80px)' }} />
+            <img src="/tianji.png" alt="Tianji" style={{ height: 'clamp(40px, 4vw, 80px)' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: sp.xs }}>
+              <h1 style={{ color: '#ff8400', fontSize: fs['2xl'], fontWeight: 700, margin: 0 }}>贵金属行情看板</h1>
+              <p style={{ color: '#b8b9b6', fontSize: fs.xs, margin: 0 }}>实时行情数据</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {mounted && (
-              <>
-                <select
-                  value={interval}
-                  onChange={(e) => setRefreshInterval(Number(e.target.value))}
-                  className="px-3 py-1.5 rounded-lg text-sm border"
-                  style={{ background: '#1a1a1a', color: '#fff', borderColor: '#2e2e2e' }}
-                >
-                  <option value={10000}>10秒</option>
-                  <option value={60000}>1分钟</option>
-                  <option value={300000}>5分钟</option>
-                </select>
-                <span className="text-xs" style={{ color: '#b8b9b6', fontFamily: 'Inter, sans-serif' }}>
-                  更新时间: {updatedAt || '—'}
-                </span>
-              </>
-            )}
-          </div>
+          {mounted && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: sp.lg }}>
+              <select
+                value={refreshInterval}
+                onChange={e => setRefreshInterval(Number(e.target.value))}
+                style={{
+                  background: '#1a1a1a', color: '#fff',
+                  border: '1px solid #2e2e2e',
+                  borderRadius: 8, fontSize: fs.xs,
+                  padding: `${sp.xs} ${sp.sm}`, cursor: 'pointer',
+                }}
+              >
+                <option value={10000}>10秒</option>
+                <option value={60000}>1分钟</option>
+                <option value={300000}>5分钟</option>
+              </select>
+              <span style={{ color: '#b8b9b6', fontSize: fs.xs }}>更新时间: {updatedAt || '—'}</span>
+            </div>
+          )}
         </div>
 
         {/* Cards row */}
-        {loading ? (
-          <div className="flex gap-4">
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className="flex-1 rounded-xl h-32 animate-pulse" style={{ background: '#1a1a1a' }} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex gap-4">
-            {spots.map(item => <SpotCard key={item.id} item={item} />)}
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: sp.lg }}>
+          {loading
+            ? [0,1,2,3].map(i => (
+                <div key={i} style={{
+                  flex: 1, borderRadius: 12, height: 'clamp(100px, 12vh, 180px)',
+                  background: '#1a1a1a', animation: 'pulse 1.5s infinite',
+                }} />
+              ))
+            : spots.map(item => <SpotCard key={item.id} item={item} />)
+          }
+        </div>
       </section>
 
-      {/* Tables section */}
-      <section className="flex flex-col gap-4 px-8 pb-8" style={{ background: '#111111' }}>
-        <div className="flex items-center justify-between">
-          <span className="text-white text-lg font-semibold" style={{ fontFamily: 'Geist, sans-serif' }}>国内黄金实物报价</span>
-          <span className="text-xs" style={{ color: '#666' }}>数据仅供参考，以各机构实际报价为准</span>
+      {/* ── 下半区：Tables ── */}
+      <section style={{
+        flex: 1, minHeight: 0,
+        display: 'flex', flexDirection: 'column',
+        gap: sp.md,
+        padding: `0 ${sp.px} ${sp.py}`,
+        overflow: 'hidden',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <span style={{ color: '#fff', fontSize: fs.lg, fontWeight: 600 }}>国内黄金实物报价</span>
+          <span style={{ color: '#666', fontSize: fs.xs }}>数据仅供参考，以各机构实际报价为准</span>
         </div>
 
-        {loading ? (
-          <div className="flex gap-4">
-            {[0, 1, 2].map(i => (
-              <div key={i} className="flex-1 rounded-xl h-72 animate-pulse" style={{ background: '#1a1a1a' }} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex gap-4 items-start">
-            <BrandTable brands={displayBrands} />
-            <BankTable domestic={domestic} />
-            <RecycleTable brands={displayBrands} />
-          </div>
-        )}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: sp.lg }}>
+          {loading
+            ? [0,1,2].map(i => (
+                <div key={i} style={{ flex: 1, borderRadius: 12, background: '#1a1a1a' }} />
+              ))
+            : <>
+                <BrandTable brands={displayBrands} />
+                <BankTable />
+                <RecycleTable brands={displayBrands} />
+              </>
+          }
+        </div>
       </section>
     </main>
   )

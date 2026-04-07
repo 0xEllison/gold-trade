@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh" className="h-full">
-      <body className={`${inter.className} min-h-full bg-[#111111] text-white`}>
+      <body className={`${inter.className} h-screen overflow-hidden bg-[#111111] text-white`}>
         {children}
       </body>
     </html>
