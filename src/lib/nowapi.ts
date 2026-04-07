@@ -1,6 +1,7 @@
 export interface SpotPrice {
   id: string
   name: string
+  subtitle: string
   ticker: string
   lastPrice: number
   buyPrice: number
@@ -47,6 +48,7 @@ export async function getSpotPrices(): Promise<SpotPrice[]> {
     results.push({
       id: 'xauusd-spot',
       name: '伦敦金现货',
+      subtitle: '',
       ticker: 'XAU/USD',
       lastPrice: parseFloat(xauusd.last_price),
       buyPrice: parseFloat(xauusd.buy_price),
@@ -64,6 +66,7 @@ export async function getSpotPrices(): Promise<SpotPrice[]> {
     results.push({
       id: 'xagusd-spot',
       name: '伦敦银现货',
+      subtitle: '',
       ticker: 'XAG/USD',
       lastPrice: parseFloat(xagusd.last_price),
       buyPrice: parseFloat(xagusd.buy_price),
@@ -81,6 +84,7 @@ export async function getSpotPrices(): Promise<SpotPrice[]> {
     results.push({
       id: 'comex-gc-main',
       name: 'COMEX黄金期货',
+      subtitle: '',
       ticker: 'GC',
       lastPrice: parseFloat(comex.lastPrice ?? comex.last_price),
       buyPrice: parseFloat(comex.buy ?? comex.bid ?? 0),
@@ -98,6 +102,7 @@ export async function getSpotPrices(): Promise<SpotPrice[]> {
     results.push({
       id: 'au-domestic',
       name: '国内现货',
+      subtitle: '上金所现货',
       ticker: 'CNY/g',
       lastPrice: parseFloat(auDom.last_price),
       buyPrice: parseFloat(auDom.buy_price),

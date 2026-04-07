@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 interface SpotPrice {
   id: string
   name: string
+  subtitle: string
   ticker: string
   lastPrice: number
   buyPrice: number
@@ -88,6 +89,7 @@ function SpotCard({ item }: { item: SpotPrice }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ color: '#fff', fontSize: fs.base, fontWeight: 600 }}>{item.name}</span>
+        <span style={{ color: '#b8b9b6', fontSize: fs.xs }}>{item.subtitle}</span>
         <span style={{ color: '#b8b9b6', fontSize: fs.xs }}>{item.ticker}</span>
       </div>
       <div style={{ color: '#fff', fontSize: fs['3xl'], fontWeight: 700, lineHeight: 1 }}>
@@ -187,7 +189,7 @@ function GoldMarketTable({ title, dot, rows }: { title: string; dot: string; row
 function RecycleTable({ brands }: { brands: BrandPrice[] }) {
   return (
     <TableShell
-      dot="#a78bfa" title="回收报价"
+      dot="#a78bfa" title="品牌报价"
       date={brands[0]?.updatetime?.slice(0, 10) ?? ''}
       cols={['商家', '回收价(元/g)', '品质']}
     >
