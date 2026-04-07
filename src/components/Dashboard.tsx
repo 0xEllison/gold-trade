@@ -24,6 +24,15 @@ interface BrandPrice {
   updatetime: string
 }
 
+interface GoldMarketRow {
+  symbol: string
+  name: string
+  buyPrice: number
+  sellPrice: number
+  highPrice: number
+  lowPrice: number
+}
+
 // 字体随视口宽度缩放
 const fs = {
   xs:    'clamp(10px, 0.7vw, 16px)',
@@ -157,40 +166,18 @@ function TableRow({ cells, last }: { cells: [React.ReactNode, React.ReactNode, R
   )
 }
 
-function BrandTable({ brands }: { brands: BrandPrice[] }) {
+function GoldMarketTable({ title, dot, rows }: { title: string; dot: string; rows: GoldMarketRow[] }) {
   return (
     <TableShell
-      dot="#ff8400" title="品牌报价"
-      date={brands[0]?.updatetime?.slice(0, 10) ?? ''}
-      cols={['品牌', '零售价(元/g)', '回购价(元/g)']}
+      dot={dot} title={title}
+      date={new Date().toISOString().slice(0, 10)}
+      cols={['品种', '买入价', '卖出价']}
     >
-      {brands.map((b, i) => (
-        <TableRow key={i} last={i === brands.length - 1} cells={[
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm }}>{b.name}</span>,
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price.toFixed(2)}</span>,
-          <span style={{ flex: 1, color: '#ff8400', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>,
-        ]} />
-      ))}
-    </TableShell>
-  )
-}
-
-const BANKS = ['工商银行', '建设银行', '中国银行', '农业银行', '交通银行']
-
-function BankTable() {
-  const [today, setToday] = useState('')
-  useEffect(() => setToday(new Date().toISOString().slice(0, 10)), [])
-  return (
-    <TableShell
-      dot="#60a5fa" title="银行报价"
-      date={today}
-      cols={['银行', '买入价(元/g)', '卖出价(元/g)']}
-    >
-      {BANKS.map((name, i) => (
-        <TableRow key={i} last={i === BANKS.length - 1} cells={[
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm }}>{name}</span>,
-          <span style={{ flex: 1, color: '#60a5fa', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
+      {rows.map((r, i) => (
+        <TableRow key={i} last={i === rows.length - 1} cells={[
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm }}>{r.name}</span>,
+          <span style={{ flex: 1, color: '#60a5fa', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{r.buyPrice.toFixed(2)}</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{r.sellPrice.toFixed(2)}</span>,
         ]} />
       ))}
     </TableShell>
@@ -218,6 +205,8 @@ function RecycleTable({ brands }: { brands: BrandPrice[] }) {
 export default function Dashboard() {
   const [spots, setSpots] = useState<SpotPrice[]>([])
   const [brands, setBrands] = useState<BrandPrice[]>([])
+  const [goldLF, setGoldLF] = useState<GoldMarketRow[]>([])
+  const [goldSH, setGoldSH] = useState<GoldMarketRow[]>([])
   const [updatedAt, setUpdatedAt] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [refreshInterval, setRefreshInterval] = useState(60000)
@@ -227,11 +216,20 @@ export default function Dashboard() {
 
   const fetchAll = async () => {
     try {
-      const [mRes, bRes] = await Promise.all([fetch('/api/market'), fetch('/api/brands')])
+      const [mRes, bRes, lfRes, shRes] = await Promise.all([
+        fetch('/api/market'),
+        fetch('/api/brands'),
+        fetch('/api/gold-lf'),
+        fetch('/api/gold-sh'),
+      ])
       const mJson = await mRes.json()
       const bJson = await bRes.json()
+      const lfJson = await lfRes.json()
+      const shJson = await shRes.json()
       if (mJson.data) setSpots(mJson.data)
       if (bJson.data) setBrands(bJson.data)
+      if (lfJson.data) setGoldLF(lfJson.data)
+      if (shJson.data) setGoldSH(shJson.data)
       setUpdatedAt(new Date().toLocaleString('zh-CN'))
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -323,8 +321,8 @@ export default function Dashboard() {
                 <div key={i} style={{ flex: 1, borderRadius: 12, background: '#1a1a1a' }} />
               ))
             : <>
-                <BrandTable brands={displayBrands} />
-                <BankTable />
+                <GoldMarketTable title="上金所现货" dot="#ff8400" rows={goldLF} />
+                <GoldMarketTable title="上金所T+D" dot="#60a5fa" rows={goldSH} />
                 <RecycleTable brands={displayBrands} />
               </>
           }

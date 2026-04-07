@@ -20,3 +20,29 @@ export async function getBrandPrices(): Promise<BrandPrice[]> {
       : '',
   }))
 }
+
+export interface GoldMarketRow {
+  symbol: string
+  name: string
+  buyPrice: number
+  sellPrice: number
+  highPrice: number
+  lowPrice: number
+}
+
+export async function getGoldMarket(market: 'LF' | 'SH'): Promise<GoldMarketRow[]> {
+  const ALAPI_TOKEN = process.env.ALAPI_TOKEN!
+  const url = `https://v3.alapi.cn/api/gold?token=${ALAPI_TOKEN}&market=${market}`
+  const res = await fetch(url, { next: { revalidate: 60 } })
+  const json = await res.json()
+  const list = json?.data ?? []
+  return list.map((item: Record<string, unknown>) => ({
+    symbol: item.symbol as string,
+    name: item.name as string,
+    buyPrice: item.buy_price as number,
+    sellPrice: item.sell_price as number,
+    highPrice: item.high_price as number,
+    lowPrice: item.low_price as number,
+  }))
+}
+
