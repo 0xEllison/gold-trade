@@ -26,13 +26,16 @@ interface BrandPrice {
 
 // 字体随视口宽度缩放
 const fs = {
-  xs:   'clamp(10px, 0.7vw, 16px)',
-  sm:   'clamp(11px, 0.85vw, 18px)',
-  base: 'clamp(12px, 0.95vw, 20px)',
-  lg:   'clamp(13px, 1.1vw, 24px)',
-  xl:   'clamp(15px, 1.3vw, 28px)',
-  '2xl':'clamp(17px, 1.5vw, 32px)',
-  '3xl':'clamp(22px, 2vw, 44px)',
+  xs:    'clamp(10px, 0.7vw, 16px)',
+  sm:    'clamp(11px, 0.85vw, 18px)',
+  base:  'clamp(12px, 0.95vw, 20px)',
+  lg:    'clamp(13px, 1.1vw, 24px)',
+  xl:    'clamp(15px, 1.3vw, 28px)',
+  '2xl': 'clamp(17px, 1.5vw, 32px)',
+  '3xl': 'clamp(22px, 2vw, 44px)',
+  // 表格专用（放大 20%）
+  tblXs: 'clamp(12px, 0.84vw, 19.2px)',
+  tblSm: 'clamp(13.2px, 1.02vw, 21.6px)',
 }
 
 // 间距随视口缩放
@@ -118,7 +121,7 @@ function TableShell({ dot, title, date, cols, children }: {
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: dot, display: 'inline-block', flexShrink: 0 }} />
           <span style={{ color: '#fff', fontSize: fs.base, fontWeight: 600 }}>{title}</span>
         </div>
-        <span style={{ color: '#666', fontSize: fs.xs, fontFamily: 'JetBrains Mono, monospace' }}>{date}</span>
+        <span style={{ color: '#666', fontSize: fs.tblXs, fontFamily: 'JetBrains Mono, monospace' }}>{date}</span>
       </div>
       {/* 列标题 */}
       <div style={{
@@ -126,9 +129,9 @@ function TableShell({ dot, title, date, cols, children }: {
         padding: `${sp.sm} ${sp.px}`,
         background: '#222', flexShrink: 0,
       }}>
-        <span style={{ flex: 1, color: '#999', fontSize: fs.xs, fontWeight: 500 }}>{cols[0]}</span>
-        <span style={{ flex: 1, color: '#999', fontSize: fs.xs, fontWeight: 500, textAlign: 'right' }}>{cols[1]}</span>
-        <span style={{ flex: 1, color: '#999', fontSize: fs.xs, fontWeight: 500, textAlign: 'right' }}>{cols[2]}</span>
+        <span style={{ flex: 1, color: '#999', fontSize: fs.tblXs, fontWeight: 500 }}>{cols[0]}</span>
+        <span style={{ flex: 1, color: '#999', fontSize: fs.tblXs, fontWeight: 500, textAlign: 'right' }}>{cols[1]}</span>
+        <span style={{ flex: 1, color: '#999', fontSize: fs.tblXs, fontWeight: 500, textAlign: 'right' }}>{cols[2]}</span>
       </div>
       {/* 数据行区域 flex-1 均分高度 */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -163,9 +166,9 @@ function BrandTable({ brands }: { brands: BrandPrice[] }) {
     >
       {brands.map((b, i) => (
         <TableRow key={i} last={i === brands.length - 1} cells={[
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm }}>{b.name}</span>,
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price.toFixed(2)}</span>,
-          <span style={{ flex: 1, color: '#ff8400', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm }}>{b.name}</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price.toFixed(2)}</span>,
+          <span style={{ flex: 1, color: '#ff8400', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>,
         ]} />
       ))}
     </TableShell>
@@ -185,9 +188,9 @@ function BankTable() {
     >
       {BANKS.map((name, i) => (
         <TableRow key={i} last={i === BANKS.length - 1} cells={[
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm }}>{name}</span>,
-          <span style={{ flex: 1, color: '#60a5fa', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm }}>{name}</span>,
+          <span style={{ flex: 1, color: '#60a5fa', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>—</span>,
         ]} />
       ))}
     </TableShell>
@@ -203,9 +206,9 @@ function RecycleTable({ brands }: { brands: BrandPrice[] }) {
     >
       {brands.map((b, i) => (
         <TableRow key={i} last={i === brands.length - 1} cells={[
-          <span style={{ flex: 1, color: '#fff', fontSize: fs.sm }}>{b.name}</span>,
-          <span style={{ flex: 1, color: '#a78bfa', fontSize: fs.sm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>,
-          <span style={{ flex: 1, color: '#666', fontSize: fs.xs, textAlign: 'right' }}>足金99.9</span>,
+          <span style={{ flex: 1, color: '#fff', fontSize: fs.tblSm }}>{b.name}</span>,
+          <span style={{ flex: 1, color: '#a78bfa', fontSize: fs.tblSm, textAlign: 'right', fontFamily: 'JetBrains Mono, monospace' }}>{b.price2.toFixed(2)}</span>,
+          <span style={{ flex: 1, color: '#666', fontSize: fs.tblXs, textAlign: 'right' }}>足金99.9</span>,
         ]} />
       ))}
     </TableShell>
