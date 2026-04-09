@@ -191,7 +191,7 @@ function RecycleTable({ brands }: { brands: BrandPrice[] }) {
     <TableShell
       dot="#a78bfa" title="品牌报价"
       date={brands[0]?.updatetime?.slice(0, 10) ?? ''}
-      cols={['商家', '回收价(元/g)', '品质']}
+      cols={['商家', '销售价(元/g)', '品质']}
     >
       {brands.map((b, i) => (
         <TableRow key={i} last={i === brands.length - 1} cells={[
